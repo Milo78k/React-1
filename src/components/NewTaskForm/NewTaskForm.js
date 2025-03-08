@@ -1,21 +1,33 @@
-import React from 'react';
+import React, { Component } from 'react';
+import './NewTaskForm.css';
 
-const NewTaskForm = ({ text, completed }) => {
-  return (
-    <form className="new-task-form">
-      <li className={completed ? 'completed' : ''}>
-        <div className="view">
-          <input className="toggle" type="checkbox" />
-          <label>
-            <span className="description">{text}</span>
-            <span className="created">created 17 seconds ago</span>
-          </label>
-          <button className="icon icon-edit"></button>
-          <button className="icon icon-destroy"></button>
-        </div>
-      </li>
-    </form>
-  );
-};
+export default class NewTaskForm extends Component {
+  state = {
+    text: '',
+  };
 
-export default NewTaskForm;
+  onLabelChange = (e) => {
+    this.setState({ text: e.target.value });
+  };
+
+  onSubmit = (e) => {
+    e.preventDefault();
+    this.props.onItemAdded(this.state.text);
+    this.setState({ text: '' });
+  };
+
+  render() {
+    return (
+      <form onSubmit={this.onSubmit}>
+        <input
+          type="text"
+          value={this.state.text}
+          onChange={this.onLabelChange}
+          className="new-todo"
+          placeholder="What needs to be done?"
+          autoFocus
+        />
+      </form>
+    );
+  }
+}

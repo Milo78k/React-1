@@ -2,48 +2,88 @@ import React, { Component } from 'react';
 import Header from '../Header';
 import TaskList from '../TaskList';
 import Footer from '../Footer';
+import NewTaskForm from '../NewTaskForm';
 
 import './App.css';
 
 export default class App extends Component {
+  maxId = 100;
   state = {
-    todoData: [
-      { id: 1, text: 'Create React App', completed: true },
-      { id: 2, text: 'Finish React course', completed: false },
-      { id: 3, text: 'Pass all the reviews', completed: false },
-    ],
+    todoData: [],
+    activeFilter: 'All',
+  };
+
+  createTodoItem(label) {
+    return {
+      text: label,
+      id: this.maxId++,
+      completed: false,
+    };
+  }
+
+  addItem = (text) => {
+    const newItem = this.createTodoItem(text);
+    this.setState(({ todoData }) => ({
+      todoData: [...todoData, newItem],
+    }));
   };
 
   deleteTask = (id) => {
-    this.setState(({ todoData }) => {
-      const newArray = todoData.filter((el) => el.id !== id);
-      return { todoData: newArray };
-    });
+    this.setState(({ todoData }) => ({
+      todoData: todoData.filter((el) => el.id !== id),
+    }));
   };
 
   toggleTaskDone = (id) => {
-    this.setState(({ todoData }) => {
-      const updatedTasks = todoData.map((task) =>
+    this.setState(({ todoData }) => ({
+      todoData: todoData.map((task) =>
         task.id === id ? { ...task, completed: !task.completed } : task,
-      );
-      return { todoData: updatedTasks };
-    });
+      ),
+    }));
+  };
+
+  changeFilter = (filter) => {
+    this.setState({ activeFilter: filter });
+  };
+
+  clearCompleted = () => {
+    this.setState(({ todoData }) => ({
+      todoData: todoData.filter((task) => !task.completed),
+    }));
+  };
+  getFilteredTasks = () => {
+    const { todoData, activeFilter } = this.state;
+    switch (activeFilter) {
+      case 'All':
+        return todoData;
+      case 'Active':
+        return todoData.filter((task) => !task.completed);
+      case 'Completed':
+        return todoData.filter((task) => task.completed);
+      default:
+        return todoData;
+    }
   };
 
   render() {
-    const { todoData } = this.state;
+    const { todoData, activeFilter } = this.state;
+    const filteredTasks = this.getFilteredTasks();
 
     return (
       <section className="todoapp">
         <Header />
+        <NewTaskForm onItemAdded={this.addItem} />
         <section className="main">
           <TaskList
-            todos={todoData}
+            todos={filteredTasks}
             onDeleteTask={this.deleteTask}
             onToggleTaskDone={this.toggleTaskDone}
           />
           <Footer
             tasksLeft={todoData.filter((task) => !task.completed).length}
+            onFilterChange={this.changeFilter}
+            onClearCompleted={this.clearCompleted}
+            activeFilter={activeFilter}
           />
         </section>
       </section>
