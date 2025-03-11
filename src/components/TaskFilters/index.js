@@ -1,2 +1,3 @@
-import TaskFilters from './TaskFilters';
-export default TaskFilters;
+import TaskFilters from './TaskFilters'
+
+export default TaskFilters

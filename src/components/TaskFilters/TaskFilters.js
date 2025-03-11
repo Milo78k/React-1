@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
-import './TaskFilters.css';
+import './TaskFilters.css'
+import PropTypes from 'prop-types'
+import React, { Component } from 'react'
 
 export default class TaskFilters extends Component {
   handleFilterChange = (filter) => {
-    this.props.onFilterChange(filter);
-  };
+    const { onFilterChange } = this.props
+    onFilterChange(filter)
+  }
 
   render() {
-    const { activeFilter } = this.props;
-    const filters = ['All', 'Active', 'Completed'];
-
+    const { activeFilter } = this.props
     return (
       <ul className="filters">
         <li>
           <button
+            type="button"
             className={activeFilter === 'All' ? 'selected' : ''}
             onClick={() => this.handleFilterChange('All')}
           >
@@ -22,6 +23,7 @@ export default class TaskFilters extends Component {
         </li>
         <li>
           <button
+            type="button"
             className={activeFilter === 'Active' ? 'selected' : ''}
             onClick={() => this.handleFilterChange('Active')}
           >
@@ -30,6 +32,7 @@ export default class TaskFilters extends Component {
         </li>
         <li>
           <button
+            type="button"
             className={activeFilter === 'Completed' ? 'selected' : ''}
             onClick={() => this.handleFilterChange('Completed')}
           >
@@ -37,6 +40,11 @@ export default class TaskFilters extends Component {
           </button>
         </li>
       </ul>
-    );
+    )
   }
+}
+
+TaskFilters.propTypes = {
+  activeFilter: PropTypes.oneOf(['All', 'Active', 'Completed']).isRequired,
+  onFilterChange: PropTypes.func.isRequired,
 }
