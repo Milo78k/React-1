@@ -44,24 +44,13 @@ export default function Task({
   }
 
   function getAriaLabel() {
-    if (isRunning) {
-      return 'Pause timer'
-    }
-    if (completed) {
-      return 'Start timer'
-    }
-
-    return 'Start timer'
+    if (completed) return 'Task completed'
+    return isRunning ? 'Pause timer' : 'Start timer'
   }
 
   function getIconClassName() {
-    if (isRunning) {
-      return 'icon-pause'
-    }
-    if (completed) {
-      return 'icon-play'
-    }
-    return 'icon-play'
+    if (completed) return 'icon-play completed'
+    return isRunning ? 'icon-pause' : 'icon-play'
   }
 
   return (
@@ -87,10 +76,7 @@ export default function Task({
                 aria-label={getAriaLabel()}
                 onClick={() => onToggleTimer(id)}
               />
-              <span className="timer">
-                {' '}
-                {completed ? '00:00' : `${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, '0')}`}{' '}
-              </span>
+              <span className="timer">{`${Math.floor(timer / 60)}:${String(timer % 60).padStart(2, '0')}`} </span>
             </div>
             <span className="created">created {taskCreationTime} ago</span>
           </label>

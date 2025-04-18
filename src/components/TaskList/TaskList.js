@@ -11,72 +11,47 @@ export default function TaskList({ todos = [], onDeleteTask, onToggleTaskDone, o
 
   const intervalsRef = useRef({})
 
+  // Инициализация таймеров новых задач
   useEffect(() => {
     setTimers((prevTimers) => {
       const newTimers = { ...prevTimers }
-      todos.forEach(({ id, timer }) => {
-        if (!(id in newTimers) && timer > 0) {
-          newTimers[id] = {
-            time: timer,
-            isRunning: false,
-          }
+      todos.forEach(({ id, timer, completed }) => {
+        if (!(id in newTimers) && timer > 0 && !completed) {
+          newTimers[id] = { time: timer, isRunning: false }
         }
       })
       return newTimers
     })
   }, [todos])
 
+  // стоп для завершённых задач
   useEffect(() => {
     const localIntervals = intervalsRef.current
-    Object.keys(timers).forEach((id) => {
-      const task = timers[id]
-      if (!localIntervals[id] && task.isRunning) {
-        localIntervals[id] = setInterval(() => {
-          setTimers((prevTimers) => {
-            let newTime = prevTimers[id].time
 
-            if (newTime > 0) {
-              newTime -= 1
-            }
-
-            if (newTime <= 0) {
-              clearInterval(localIntervals[id])
-              delete localIntervals[id]
-
-              return {
-                ...prevTimers,
-                [id]: { ...prevTimers[id], time: 0, isRunning: false },
-              }
-            }
-            return {
-              ...prevTimers,
-              [id]: { ...prevTimers[id], time: newTime },
-            }
-          })
-        }, 1000)
+    todos.forEach((task) => {
+      const { id, completed } = task
+      if (completed && localIntervals[id]) {
+        clearInterval(localIntervals[id])
+        delete localIntervals[id]
+        setTimers((prev) => ({
+          ...prev,
+          [id]: { ...prev[id], isRunning: false },
+        }))
       }
     })
-
-    return () => {
-      Object.keys(localIntervals).forEach((id) => {
-        if (!timers[id]?.isRunning) {
-          clearInterval(localIntervals[id])
-          delete localIntervals[id]
-        }
-      })
-    }
-  }, [timers])
+  }, [todos])
 
   const handleToggleTimer = (id) => {
+    const taskData = todos.find((t) => t.id === id)
+    if (!taskData || taskData.completed) return // не запускаем таймер для завершённых задач
+
     setTimers((prevTimers) => {
       const isRunning = !prevTimers[id]?.isRunning
-
       const updatedTimers = { ...prevTimers }
 
       if (!updatedTimers[id]) {
-        const task = todos.find((t) => t.id === id)
-        if (task && task.timer > 0) {
-          updatedTimers[id] = { time: task.timer, isRunning }
+        if (taskData.timer > 0) {
+          updatedTimers[id] = { time: taskData.timer, isRunning }
         }
       } else {
         updatedTimers[id] = { ...updatedTimers[id], isRunning }
@@ -88,15 +63,26 @@ export default function TaskList({ todos = [], onDeleteTask, onToggleTaskDone, o
       } else if (isRunning) {
         intervalsRef.current[id] = setInterval(() => {
           setTimers((prevState) => {
-            const newState = { ...prevState }
-            const currentTime = newState[id].time
+            const current = prevState[id]
+            const task = todos.find((t) => t.id === id)
 
-            if (currentTime > 0) {
-              newState[id].time = currentTime - 1
+            if (!current || current.time <= 0 || (task && task.completed)) {
+              clearInterval(intervalsRef.current[id])
+              delete intervalsRef.current[id]
+              return {
+                ...prevState,
+                [id]: { ...current, time: 0, isRunning: false },
+              }
             }
 
-            localStorage.setItem('taskTimers', JSON.stringify(newState))
-            return newState
+            const newTime = current.time - 1
+            const updated = {
+              ...prevState,
+              [id]: { ...current, time: newTime },
+            }
+
+            localStorage.setItem('taskTimers', JSON.stringify(updated))
+            return updated
           })
         }, 1000)
       }

@@ -1,47 +1,43 @@
+import React from 'react'
 import './TaskFilters.css'
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
 
-export default class TaskFilters extends Component {
-  handleFilterChange = (filter) => {
-    const { onFilterChange } = this.props
+export default function TaskFilters({ activeFilter, onFilterChange }) {
+  const handleFilterChange = (filter) => {
     onFilterChange(filter)
   }
 
-  render() {
-    const { activeFilter } = this.props
-    return (
-      <ul className="filters">
-        <li>
-          <button
-            type="button"
-            className={activeFilter === 'All' ? 'selected' : ''}
-            onClick={() => this.handleFilterChange('All')}
-          >
-            All
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            className={activeFilter === 'Active' ? 'selected' : ''}
-            onClick={() => this.handleFilterChange('Active')}
-          >
-            Active
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            className={activeFilter === 'Completed' ? 'selected' : ''}
-            onClick={() => this.handleFilterChange('Completed')}
-          >
-            Completed
-          </button>
-        </li>
-      </ul>
-    )
-  }
+  return (
+    <ul className="filters">
+      <li>
+        <button
+          type="button"
+          className={activeFilter === 'All' ? 'selected' : ''}
+          onClick={() => handleFilterChange('All')}
+        >
+          All
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          className={activeFilter === 'Active' ? 'selected' : ''}
+          onClick={() => handleFilterChange('Active')}
+        >
+          Active
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          className={activeFilter === 'Completed' ? 'selected' : ''}
+          onClick={() => handleFilterChange('Completed')}
+        >
+          Completed
+        </button>
+      </li>
+    </ul>
+  )
 }
 
 TaskFilters.propTypes = {
